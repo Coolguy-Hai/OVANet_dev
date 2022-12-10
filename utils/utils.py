@@ -16,6 +16,8 @@ def get_model_mme(net, num_class=13, temp=0.05, top=False, norm=True):
     elif "vgg" in net:
         model_g = VGGBase(option=net, pret=True, top=top)
         dim = 4096
+    elif "resnext" in net:
+        model_g = ResBase(net, top=top)
     if top:
         dim = 1000
     print("selected network %s"%net)

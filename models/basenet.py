@@ -21,6 +21,8 @@ class ResBase(nn.Module):
             model_ft = models.resnet101(pretrained=pret)
         if option == 'resnet152':
             model_ft = models.resnet152(pretrained=pret)
+        if option == "resnext":
+            model_ft = models.resnext50_32x4d(pretrained=pret)
 
         if top:
             self.features = model_ft
