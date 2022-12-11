@@ -13,6 +13,7 @@ from utils.lr_schedule import inv_lr_scheduler
 from utils.defaults import get_dataloaders, get_models
 from eval import test
 import argparse
+import wandb
 
 parser = argparse.ArgumentParser(description='Pytorch OVANet',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -67,6 +68,7 @@ n_total = conf.data.dataset.n_total
 open = n_total - n_share - n_source_private > 0
 num_class = n_share + n_source_private
 script_name = os.path.basename(__file__)
+exp_name = args.exp_name
 
 inputs = vars(args)
 inputs["evaluation_data"] = evaluation_data
@@ -86,6 +88,7 @@ ndata = target_folder.__len__()
 
 
 def train():
+    wandb.init(project="ova_officehome", name=exp_name)
     criterion = nn.CrossEntropyLoss().cuda()
     print('train start!')
     data_iter_s = iter(source_loader)
@@ -155,10 +158,12 @@ def train():
         opt_c.zero_grad()
         if step % conf.train.log_interval == 0:
             print(log_string.format(*log_values))
+            wandb.log({"none": 1})
         if step > 0 and step % conf.test.test_interval == 0:
             acc_o, h_score = test(step, test_loader, logname, n_share, G,
                                   [C1, C2], open=open)
             print("acc all %s h_score %s " % (acc_o, h_score))
+            wandb.log({"acc": acc_o, "h_score": h_score})
             G.train()
             C1.train()
             if args.save_model:
